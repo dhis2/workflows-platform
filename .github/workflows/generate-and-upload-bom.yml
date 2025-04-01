@@ -1,0 +1,53 @@
+on:
+  workflow_call:
+    secrets:
+      DEPENDENCYTRACK_APIKEY:
+        description: The API key for Dependency Track
+        required: true
+    inputs:
+      node_version:
+        description: The nodejs version that is used for this workflow
+        default: 22
+        required: false
+        type: number
+      project_id:
+        description: The Id of the Dependency Track Project
+        required: true
+        type: string
+      dependency_track_url:
+        description: The URL of the Dependency Track instance
+        default: "https://dt.security.dhis2.org/api/v1/bom"
+        required: false
+        type: string
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  create-bom:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ inputs.node_version }}
+
+      - name: Install Dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Generate BOMs
+        run: |
+          npm install -g @cyclonedx/cdxgen
+          cdxgen -o sbom.json
+      - name: Upload SBOM to DependencyTrack
+        env:
+          DEPENDENCY_TRACK_API: "${{ inputs.dependency_track_url }}"
+        run: |
+          curl -X POST "$DEPENDENCY_TRACK_API" \
+              --fail-with-body \
+              -H "Content-Type: multipart/form-data" \
+              -H "X-Api-Key: ${{ secrets.DEPENDENCYTRACK_APIKEY }}" \
+              -F "project=${{ inputs.project_id }}" \
+              -F "bom=@sbom.json"
