@@ -11,6 +11,11 @@ on:
                 default: true
                 required: false
                 type: boolean
+            skip_deploy_build:
+                description: Whether to publish to D2 artifacts
+                default: false
+                required: false
+                type: boolean
         secrets:
             DHIS2_BOT_GITHUB_TOKEN:
                 required: true
@@ -43,6 +48,7 @@ jobs:
                   github-token: ${{ secrets.DHIS2_BOT_GITHUB_TOKEN }}
                   apphub-token: ${{ secrets.DHIS2_BOT_APPHUB_TOKEN }}
             - uses: dhis2/deploy-build@master
+              if: ${{ inputs.skip_deploy_build == false }}
               with:
                   build-dir: build/app
                   github-token: ${{ secrets.DHIS2_BOT_GITHUB_TOKEN }}
