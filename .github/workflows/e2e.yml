@@ -11,13 +11,14 @@ jobs:
         runs-on: ubuntu-latest
         steps:
             - uses: actions/checkout@v4
+            - uses: pnpm/action-setup@v4
             - uses: actions/setup-node@v4
               with:
                   node-version: 20
-                  cache: yarn
+                  cache: pnpm
             - uses: cypress-io/github-action@v6
               with:
-                  start: npx --yes @dhis2/cli-cluster up 2.41 --channel dev --db-version 2.41 --seed, yarn start:nobrowser
+                  start: npx --yes @dhis2/cli-cluster up 2.41 --channel dev --db-version 2.41 --seed, pnpm start:nobrowser
                   wait-on: http://localhost:8080/dhis-web-commons/security/login.action, http://localhost:3000
                   wait-on-timeout: 600
               env:

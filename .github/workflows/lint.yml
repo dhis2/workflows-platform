@@ -6,10 +6,11 @@ jobs:
         runs-on: ubuntu-latest
         steps:
             - uses: actions/checkout@v4
+            - uses: pnpm/action-setup@v4
             - uses: actions/setup-node@v4
               with:
                   node-version: 20
-                  cache: yarn
-            - run: yarn install --frozen-lockfile
-            - run: yarn d2-app-scripts i18n generate
-            - run: yarn d2-style check
+                  cache: pnpm
+            - run: pnpm install --frozen-lockfile
+            - run: pnpm d2-app-scripts i18n generate
+            - run: pnpm d2-style check
