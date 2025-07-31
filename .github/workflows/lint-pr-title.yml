@@ -15,4 +15,4 @@ jobs:
             - id: commitlint
               run: |
                 echo "CONFIG_PATH=$(node -e 'process.stdout.write(require("@dhis2/cli-style").config.commitlint)')" >> "$GITHUB_OUTPUT"
-            - run: echo "${{ github.event.pull_request.title }}" | npx commitlint --config ${{ steps.commitlint.outputs.CONFIG_PATH }}
+            - run: echo "${{ github.event.pull_request.title }}" | pnpx commitlint@12 --config ${{ steps.commitlint.outputs.CONFIG_PATH }}
