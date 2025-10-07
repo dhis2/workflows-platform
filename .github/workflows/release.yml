@@ -7,7 +7,7 @@ on:
                 required: false
                 type: boolean
             apphub_channel:
-                description: The channel to use for publishing to apphub
+                description: The channel to use for publishing to apphub (stable, development or canary)
                 default: 'stable'
                 required: false
                 type: string
