@@ -14,9 +14,6 @@ jobs:
                   node-version: 20
                   cache: pnpm
             - run: pnpm install --frozen-lockfile
-            - id: commitlint
-              run: |
-                echo "CONFIG_PATH=$(node -e 'process.stdout.write(require("@dhis2/cli-style").config.commitlint)')" >> "$GITHUB_OUTPUT"
             - uses: wagoid/commitlint-github-action@v5
               with:
-                  configFile: ${{ steps.commitlint.outputs.CONFIG_PATH }}
+                  configFile: commitlint.config.mjs

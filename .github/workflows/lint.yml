@@ -13,4 +13,4 @@ jobs:
                   cache: pnpm
             - run: pnpm install --frozen-lockfile
             - run: pnpm d2-app-scripts i18n generate
-            - run: pnpm d2-style check
+            - run: pnpm lint
