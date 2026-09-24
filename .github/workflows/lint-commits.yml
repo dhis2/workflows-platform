@@ -13,7 +13,23 @@ jobs:
               with:
                   node-version: 20
                   cache: pnpm
+            # Needed when the project's commitlint config imports packages from node_modules
             - run: pnpm install --frozen-lockfile
-            - uses: wagoid/commitlint-github-action@v5
+            # Use the project's commitlint config if it has one, otherwise install
+            # @dhis2/config-commitlint. The path must be relative to the workspace, since
+            # that's the only directory mounted into the commitlint action's container.
+            - id: commitlint
+              run: |
+                  shopt -s nullglob
+                  project_configs=(commitlint.config.* .commitlintrc*)
+                  if [ ${#project_configs[@]} -gt 0 ]; then
+                    config_path="${project_configs[0]}"
+                  else
+                    npm install --no-save --no-package-lock --prefix .commitlint @dhis2/config-commitlint@0
+                    config_path=$(node -p 'path.relative(process.cwd(), require.resolve("@dhis2/config-commitlint", { paths: [".commitlint"] }))')
+                  fi
+                  echo "Using commitlint config: $config_path"
+                  echo "CONFIG_PATH=$config_path" >> "$GITHUB_OUTPUT"
+            - uses: wagoid/commitlint-github-action@v6
               with:
-                  configFile: commitlint.config.mjs
+                  configFile: ${{ steps.commitlint.outputs.CONFIG_PATH }}

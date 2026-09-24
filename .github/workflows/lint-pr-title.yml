@@ -11,7 +11,24 @@ jobs:
         with:
           node-version: 20
           cache: pnpm
+      # Needed when the project's commitlint config imports packages from node_modules
       - run: pnpm install --frozen-lockfile
-      - run: echo "$PR_TITLE" | pnpx commitlint@12 --config commitlint.config.mjs
+      # Use the project's commitlint config if it has one, otherwise install
+      # @dhis2/config-commitlint
+      - id: commitlint
+        run: |
+          shopt -s nullglob
+          project_configs=(commitlint.config.* .commitlintrc*)
+          if [ ${#project_configs[@]} -gt 0 ]; then
+            npm install --no-save --no-package-lock --prefix "$RUNNER_TEMP/commitlint" commitlint@20
+            config_path="${project_configs[0]}"
+          else
+            npm install --no-save --no-package-lock --prefix "$RUNNER_TEMP/commitlint" commitlint@20 @dhis2/config-commitlint@0
+            config_path=$(node -p 'require.resolve("@dhis2/config-commitlint", { paths: [process.env.RUNNER_TEMP + "/commitlint"] })')
+          fi
+          echo "Using commitlint config: $config_path"
+          echo "CONFIG_PATH=$config_path" >> "$GITHUB_OUTPUT"
+      - run: echo "$PR_TITLE" | "$RUNNER_TEMP/commitlint/node_modules/.bin/commitlint" --config "$CONFIG_PATH"
         env:
           PR_TITLE: ${{ github.event.pull_request.title }}
+          CONFIG_PATH: ${{ steps.commitlint.outputs.CONFIG_PATH }}

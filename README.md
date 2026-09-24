@@ -25,8 +25,8 @@ These live under `.github/workflows/` and are consumed by other repos with
 | Workflow | Purpose | Key inputs | Required secrets |
 | --- | --- | --- | --- |
 | `lint.yml` | Runs `pnpm d2-app-scripts i18n generate` then `pnpm lint` on the consuming app. | – | – |
-| `lint-commits.yml` | Lints all commits on the branch with `commitlint` against the app's own `commitlint.config.mjs`. | – | – |
-| `lint-pr-title.yml` | Lints the pull request title with `commitlint`, so it can drive semantic-release/squash-merge commit messages. | – | – |
+| `lint-commits.yml` | Lints the pushed or pull request commits with `commitlint` using the app's commitlint config if it has one, otherwise [`@dhis2/config-commitlint`](https://www.npmjs.com/package/@dhis2/config-commitlint). | – | – |
+| `lint-pr-title.yml` | Lints the pull request title with `commitlint` (same config lookup as `lint-commits.yml`), so it can drive semantic-release/squash-merge commit messages. | – | – |
 | `test.yml` | Runs `pnpm d2-app-scripts i18n generate` then `pnpm d2-app-scripts test`. | – | – |
 | `e2e.yml` | Runs Cypress e2e tests against a local DHIS2 backend cluster (`@dhis2/cli-cluster`) and the app dev server. | – | `CYPRESS_LOGIN_NAME`, `CYPRESS_LOGIN_PASSWORD` |
 | `legacy-e2e.yml` | Runs Cypress e2e tests against the debug.dhis2.org instance instead of a local cluster. | `api_version` (default `41`) | – |
