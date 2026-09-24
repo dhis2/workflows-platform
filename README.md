@@ -15,7 +15,7 @@
 Consuming apps must pick the tag that matches their own tooling; the two
 major versions are not interchangeable. Apps on `@v2` use `pnpm` (via
 `pnpm/action-setup@v4`, version resolved from each workflow's own
-`package.json` `packageManager` field) and Node 20, unless noted otherwise.
+`package.json` `packageManager` field) and Node 24, unless noted otherwise.
 
 ## Reusable workflows
 
