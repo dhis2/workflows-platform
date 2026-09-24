@@ -17,13 +17,14 @@ jobs:
       # @dhis2/config-commitlint
       - id: commitlint
         run: |
+          mkdir -p "$RUNNER_TEMP/commitlint"
           shopt -s nullglob
           project_configs=(commitlint.config.* .commitlintrc*)
           if [ ${#project_configs[@]} -gt 0 ]; then
-            npm install --no-save --no-package-lock --prefix "$RUNNER_TEMP/commitlint" commitlint@20
+            pnpm add --dir "$RUNNER_TEMP/commitlint" commitlint@20
             config_path="${project_configs[0]}"
           else
-            npm install --no-save --no-package-lock --prefix "$RUNNER_TEMP/commitlint" commitlint@20 @dhis2/config-commitlint@0
+            pnpm add --dir "$RUNNER_TEMP/commitlint" commitlint@20 @dhis2/config-commitlint@0
             config_path=$(node -p 'require.resolve("@dhis2/config-commitlint", { paths: [process.env.RUNNER_TEMP + "/commitlint"] })')
           fi
           echo "Using commitlint config: $config_path"

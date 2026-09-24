@@ -25,7 +25,8 @@ jobs:
                   if [ ${#project_configs[@]} -gt 0 ]; then
                     config_path="${project_configs[0]}"
                   else
-                    npm install --no-save --no-package-lock --prefix .commitlint @dhis2/config-commitlint@0
+                    mkdir -p .commitlint
+                    pnpm add --dir .commitlint --ignore-workspace @dhis2/config-commitlint@0
                     config_path=$(node -p 'path.relative(process.cwd(), require.resolve("@dhis2/config-commitlint", { paths: [".commitlint"] }))')
                   fi
                   echo "Using commitlint config: $config_path"
