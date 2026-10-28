@@ -17,7 +17,7 @@ jobs:
               with:
                   node-version: 24
                   cache: pnpm
-            - uses: cypress-io/github-action@v6
+            - uses: cypress-io/github-action@v7
               with:
                   start: pnpm d2-app-scripts start
                   wait-on: 'http://localhost:3000'
