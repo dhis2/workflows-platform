@@ -16,7 +16,7 @@ jobs:
               with:
                   node-version: 20
                   cache: yarn
-            - uses: cypress-io/github-action@v6
+            - uses: cypress-io/github-action@v7
               with:
                   start: yarn d2-app-scripts start
                   wait-on: 'http://localhost:3000'
