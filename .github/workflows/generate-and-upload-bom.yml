@@ -20,6 +20,7 @@ on:
         description: >-
           The BOM upload URL of the Dependency Track instance. Defaults to the
           DEPENDENCYTRACK_URL configuration variable.
+        default: ${{ vars.DEPENDENCYTRACK_URL }}
         required: false
         type: string
 
@@ -46,7 +47,7 @@ jobs:
           cdxgen -o sbom.json
       - name: Upload SBOM to DependencyTrack
         env:
-          DT_API_URL: ${{ inputs.dependency_track_url || vars.DEPENDENCYTRACK_URL }}
+          DT_API_URL: ${{ inputs.dependency_track_url }}
           DT_API_KEY: ${{ secrets.DEPENDENCYTRACK_APIKEY }}
           PROJECT_NAME: ${{ github.event.repository.name }}
           PROJECT_VERSION: ${{ github.ref_name }}
