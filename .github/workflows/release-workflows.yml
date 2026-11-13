@@ -7,6 +7,14 @@ on:
 permissions:
     contents: read
 
+# Serialize releases across branches: semantic-release fetches all release
+# branches' tags, and semantic-release-major-tag force-moves floating tags
+# (v1, v2, ...). Concurrent runs can see a tag move mid-run and fail with
+# "would clobber existing tag".
+concurrency:
+    group: release-workflows
+    cancel-in-progress: false
+
 jobs:
     release:
         runs-on: ubuntu-latest
