@@ -7,16 +7,20 @@ on:
     inputs:
       node_version:
         description: The nodejs version that is used for this workflow
-        default: 22
+        default: 24
         required: false
         type: number
       project_id:
-        description: The Id of the Dependency Track Project
-        required: true
+        description: >-
+          Deprecated and ignored. The Dependency Track project is now
+          auto-created from the repository name and the git ref.
+        required: false
         type: string
       dependency_track_url:
-        description: The URL of the Dependency Track instance
-        default: "https://dt.security.dhis2.org/api/v1/bom"
+        description: >-
+          The BOM upload URL of the Dependency Track instance. Defaults to the
+          DEPENDENCYTRACK_URL configuration variable.
+        default: ${{ vars.DEPENDENCYTRACK_URL }}
         required: false
         type: string
 
@@ -43,11 +47,27 @@ jobs:
           cdxgen -o sbom.json
       - name: Upload SBOM to DependencyTrack
         env:
-          DEPENDENCY_TRACK_API: "${{ inputs.dependency_track_url }}"
+          DT_API_URL: ${{ inputs.dependency_track_url }}
+          DT_API_KEY: ${{ secrets.DEPENDENCYTRACK_APIKEY }}
+          PROJECT_NAME: ${{ github.event.repository.name }}
+          PROJECT_VERSION: ${{ github.ref_name }}
+          LEGACY_PROJECT_ID: ${{ inputs.project_id }}
         run: |
-          curl -X POST "$DEPENDENCY_TRACK_API" \
+          if [ -n "$LEGACY_PROJECT_ID" ]; then
+            echo "::warning::The project_id input is deprecated and ignored. The SBOM is uploaded to the auto-created project $PROJECT_NAME/$PROJECT_VERSION instead. Remove project_id from the calling workflow."
+          fi
+
+          response=$(curl -sS -X POST "$DT_API_URL" \
               --fail-with-body \
-              -H "Content-Type: multipart/form-data" \
-              -H "X-Api-Key: ${{ secrets.DEPENDENCYTRACK_APIKEY }}" \
-              -F "project=${{ inputs.project_id }}" \
-              -F "bom=@sbom.json"
+              -H "X-Api-Key: $DT_API_KEY" \
+              -F "autoCreate=true" \
+              -F "projectName=$PROJECT_NAME" \
+              -F "projectVersion=$PROJECT_VERSION" \
+              -F "bom=@sbom.json")
+
+          token=$(printf '%s' "$response" | jq -r '.token // empty')
+          if [ -z "$token" ]; then
+            echo "::error::DependencyTrack returned no processing token: $response"
+            exit 1
+          fi
+          echo "Queued $PROJECT_NAME/$PROJECT_VERSION (token $token)"
