@@ -34,7 +34,7 @@ These live under `.github/workflows/` and are consumed by other repos with
 | `deploy-branch.yml` | Builds the app and deploys a non-production branch preview to Netlify, aliased to the branch name. | `branch` (required) | `DHIS2_BOT_GITHUB_TOKEN`, `DHIS2_BOT_NETLIFY_TOKEN`, `NETLIFY_SITE_ID` |
 | `deploy-production.yml` | Builds the app and deploys it as the production site on Netlify. | `branch` (default `main`) | `DHIS2_BOT_GITHUB_TOKEN`, `DHIS2_BOT_NETLIFY_TOKEN`, `NETLIFY_SITE_ID` |
 | `release.yml` | Builds the app, signs commits, runs `dhis2/action-semantic-release` to cut a release (apphub and/or GitHub), then uploads the build via `dhis2/deploy-build`. | `publish_apphub` (default `true`), `apphub_channel` (default `stable`), `publish_github` (default `true`), `skip_deploy_build` (default `false`) | `DHIS2_BOT_GITHUB_TOKEN`, `DHIS2_BOT_APPHUB_TOKEN` |
-| `generate-and-upload-bom.yml` | Generates a CycloneDX SBOM (`cdxgen`) for the app and uploads it to Dependency Track. | `node_version` (default `22`), `project_id` (required), `dependency_track_url` (default `https://dt.security.dhis2.org/api/v1/bom`) | `DEPENDENCYTRACK_APIKEY` |
+| `generate-and-upload-bom.yml` | Generates a CycloneDX SBOM (`cdxgen`) for the app and uploads it to Dependency Track, auto-creating a project named after the repo with the git ref (branch or tag) as its version. | `node_version` (default `24`), `dependency_track_url` (default: the org-level `DEPENDENCYTRACK_URL` variable), `project_id` (deprecated, ignored) | `DEPENDENCYTRACK_APIKEY` |
 | `comment-and-close.yml` | Closes a given issue with a comment pointing reporters to the DHIS2 issue tracker (used for triaging issues opened in app repos). | `issue_number` (required) | – |
 
 ## Usage examples
@@ -239,7 +239,6 @@ jobs:
         uses: dhis2/workflows-platform/.github/workflows/generate-and-upload-bom.yml@v1
         with:
             node_version: 20
-            project_id: '08257ca6-e0dc-4bd8-a3b0-f3608f406cf8'
         secrets: inherit
 ```
 
