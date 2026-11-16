@@ -57,13 +57,19 @@ jobs:
             echo "::warning::The project_id input is deprecated and ignored. The SBOM is uploaded to the auto-created project $PROJECT_NAME/$PROJECT_VERSION instead. Remove project_id from the calling workflow."
           fi
 
-          response=$(curl -sS -X POST "$DT_API_URL" \
+          # Github `run:` executes as `bash -e` by default, so errors can get
+          # swallowed before the error body gets printed. Using an `if` block
+          # here should finish and print the error response before exiting
+          if ! response=$(curl -sS -X POST "$DT_API_URL" \
               --fail-with-body \
               -H "X-Api-Key: $DT_API_KEY" \
               -F "autoCreate=true" \
               -F "projectName=$PROJECT_NAME" \
               -F "projectVersion=$PROJECT_VERSION" \
-              -F "bom=@sbom.json")
+              -F "bom=@sbom.json"); then
+            echo "::error::DependencyTrack upload failed: $response"
+            exit 1
+          fi
 
           token=$(printf '%s' "$response" | jq -r '.token // empty')
           if [ -z "$token" ]; then
