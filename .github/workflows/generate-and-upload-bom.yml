@@ -44,7 +44,9 @@ jobs:
       - name: Generate BOMs
         run: |
           npm install -g @cyclonedx/cdxgen
-          cdxgen -o sbom.json
+          # Our DT server version seems to support spec versions 1.0 to 1.6;
+          # the latest CycloneDX uses spec 1.7
+          cdxgen --spec-version 1.6 -o sbom.json
       - name: Upload SBOM to DependencyTrack
         env:
           DT_API_URL: ${{ inputs.dependency_track_url }}
